@@ -1,15 +1,10 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
+// app/(abrigos)/index.tsx
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from "react-native";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import AbrigoCard from "../../src/components/AbrigoCard";
-import { api } from "../../src/services/api";
+import { AbrigoService, Abrigo } from "../../src/services/AbrigoService";
 import { colors } from "../../src/constants/colors";
-
-type Abrigo = {
-  id: string;
-  nome: string;
-  endereco: string;
-};
 
 export default function Abrigos() {
   const [abrigos, setAbrigos] = useState<Abrigo[]>([]);
@@ -18,10 +13,11 @@ export default function Abrigos() {
 
   const carregarAbrigos = async () => {
     try {
-      const response = await api.get("/abrigos");
-      setAbrigos(response.data);
+      setLoading(true);
+      const dados = await AbrigoService.listarTodos();
+      setAbrigos(dados);
     } catch (error) {
-      console.error("Erro ao buscar abrigos", error);
+      Alert.alert("Erro", "Não foi possível carregar os abrigos.");
     } finally {
       setLoading(false);
     }
@@ -31,25 +27,25 @@ export default function Abrigos() {
     carregarAbrigos();
   }, []);
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Abrigos disponíveis</Text>
-
-      {loading ? (
-        <ActivityIndicator size="large" color={colors.primary} />
-      ) : (
-        <FlatList
-          data={abrigos}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <AbrigoCard
-              abrigo={item}
-              onPress={() => router.push(`/abrigos/${item.id}`)}
-            />
-          )}
-          contentContainerStyle={{ paddingBottom: 16 }}
-        />
-      )}
+      <Text style={styles.title}>Abrigos Disponíveis</Text>
+      <FlatList
+        data={abrigos}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <AbrigoCard abrigo={item} onPress={() => router.push(`/(abrigos)/${item.id}`)} />
+        )}
+        contentContainerStyle={{ paddingBottom: 16 }}
+      />
     </View>
   );
 }

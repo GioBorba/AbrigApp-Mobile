@@ -1,41 +1,41 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+// app/avaliacoes/nova.tsx
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { getIdToken } from "firebase/auth";
+import { AvaliacaoService } from "../../src/services/AvaliacaoService";
 import { auth } from "../../src/services/firebase";
 import { colors } from "../../src/constants/colors";
-import { AvaliacaoService } from "../../src/services/AvaliacaoService";
 
 export default function NovaAvaliacao() {
-  const router = useRouter();
   const { abrigoId } = useLocalSearchParams();
+  const router = useRouter();
 
-  const [nota, setNota] = useState("");
   const [comentario, setComentario] = useState("");
+  const [nota, setNota] = useState("5");
+  const [loading, setLoading] = useState(false);
 
-  const handleEnviar = async () => {
-    if (!nota || !comentario) {
+  const enviar = async () => {
+    if (!comentario || !nota) {
       Alert.alert("Erro", "Preencha todos os campos.");
       return;
     }
 
-    const notaInt = parseInt(nota);
-    if (isNaN(notaInt) || notaInt < 1 || notaInt > 5) {
-      Alert.alert("Erro", "Nota deve ser um número entre 1 e 5.");
+    const notaNumero = parseInt(nota);
+    if (isNaN(notaNumero) || notaNumero < 1 || notaNumero > 5) {
+      Alert.alert("Erro", "A nota deve ser um número entre 1 e 5.");
       return;
     }
 
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("Usuário não autenticado.");
-      const token = await getIdToken(user);
-
-      await AvaliacaoService.criar({ abrigoId: String(abrigoId), nota: notaInt, comentario }, token);
-
-      Alert.alert("Sucesso", "Avaliação enviada com sucesso.");
-      router.replace(`/abrigos/${abrigoId}`);
-    } catch (error: any) {
-      Alert.alert("Erro", error?.response?.data?.message || error.message);
+      setLoading(true);
+      const token = await auth.currentUser?.getIdToken();
+      await AvaliacaoService.criar({ abrigoId: String(abrigoId), comentario, nota: notaNumero }, token!);
+      Alert.alert("Sucesso", "Avaliação enviada!");
+      router.replace(`/(abrigos)/${abrigoId}`);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível enviar a avaliação.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,27 +43,27 @@ export default function NovaAvaliacao() {
     <View style={styles.container}>
       <Text style={styles.title}>Nova Avaliação</Text>
 
+      <Text style={styles.label}>Nota (1 a 5):</Text>
       <TextInput
         style={styles.input}
-        placeholder="Nota (1 a 5)"
-        placeholderTextColor={colors.textGray}
+        keyboardType="numeric"
+        maxLength={1}
         value={nota}
         onChangeText={setNota}
-        keyboardType="numeric"
       />
 
+      <Text style={styles.label}>Comentário:</Text>
       <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder="Comentário"
-        placeholderTextColor={colors.textGray}
+        style={[styles.input, { height: 100 }]}
+        multiline
+        textAlignVertical="top"
         value={comentario}
         onChangeText={setComentario}
-        multiline
-        numberOfLines={4}
+        placeholder="Descreva sua experiência..."
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleEnviar}>
-        <Text style={styles.buttonText}>Enviar Avaliação</Text>
+      <TouchableOpacity style={styles.button} onPress={enviar} disabled={loading}>
+        <Text style={styles.buttonText}>{loading ? "Enviando..." : "Enviar Avaliação"}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -76,31 +76,33 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     color: colors.primary,
     marginBottom: 24,
   },
-  input: {
-    backgroundColor: "#2a2a2a",
+  label: {
     color: colors.textLight,
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
+    marginBottom: 4,
   },
-  textArea: {
-    height: 100,
-    textAlignVertical: "top",
+  input: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    color: colors.textLight,
+    backgroundColor: "#2a2a2a",
   },
   button: {
     backgroundColor: colors.primary,
     padding: 14,
     borderRadius: 8,
-    marginTop: 8,
+    marginTop: 12,
   },
   buttonText: {
     color: colors.buttonText,
-    fontWeight: "bold",
     textAlign: "center",
+    fontWeight: "bold",
   },
 });

@@ -1,19 +1,21 @@
+// src/services/api.ts
 import axios from "axios";
-import { getIdToken, onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase";
 
 export const api = axios.create({
   baseURL: "https://abrigapp.onrender.com/api",
+  timeout: 10000,
 });
 
-
-api.interceptors.request.use(async (config) => {
-  const user = auth.currentUser;
-
-  if (user) {
-    const token = await getIdToken(user);
-    config.headers.Authorization = `Bearer ${token}`;
+// Interceptador para log de erro global (opcional)
+api.interceptors.response.use(
+  response => response,
+  error => {
+    console.error("Erro de API:", {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    return Promise.reject(error);
   }
-
-  return config;
-});
+);

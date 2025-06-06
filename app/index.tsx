@@ -8,7 +8,7 @@ export default function Welcome() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>AbrigApp</Text>
-      <Text style={styles.subtitle}>Encontre segurança. Avalie. Ajude.</Text>
+      <Text style={styles.subtitle}>Encontre segurança. Avalie. Saiba como se portar em emergências.</Text>
 
       <TouchableOpacity style={styles.button} onPress={() => router.push("/login")}>
         <Text style={styles.buttonText}>Entrar</Text>

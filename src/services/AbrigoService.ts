@@ -1,13 +1,19 @@
+// src/services/AbrigoService.ts
 import { api } from "./api";
 
-export const AbrigoService = {
-  listarTodos: async (estado?: string, cidade?: string) => {
-    try {
-      const params: Record<string, string> = {};
-      if (estado) params.estado = estado;
-      if (cidade) params.cidade = cidade;
+export type Abrigo = {
+  id: string;
+  nome: string;
+  endereco: string;
+  cidade: string;
+  estado: string;
+};
 
-      const response = await api.get("/abrigos", { params });
+export const AbrigoService = {
+  listarTodos: async (): Promise<Abrigo[]> => {
+    try {
+      const response = await api.get("/abrigos");
+      console.log("Abrigos carregados:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao listar abrigos:", error);
@@ -15,9 +21,10 @@ export const AbrigoService = {
     }
   },
 
-  buscarPorId: async (id: string) => {
+  buscarPorId: async (id: string): Promise<Abrigo> => {
     try {
       const response = await api.get(`/abrigos/${id}`);
+      console.log("Abrigo carregado:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar abrigo:", error);

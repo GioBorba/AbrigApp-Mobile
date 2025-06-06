@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../src/services/firebase";
 import { colors } from "../../src/constants/colors";
+import { getIdToken } from "firebase/auth";
 
 export default function Login() {
   const router = useRouter();
@@ -19,6 +20,14 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, senha);
       router.replace("/dashboard");
+      const user = auth.currentUser;
+      if (user) {
+        const token = await getIdToken(user);
+        console.log("🔐 Token Firebase:", token);
+    } else {
+        console.log("⚠️ Nenhum usuário autenticado.");
+}
+
     } catch (error: any) {
       Alert.alert("Erro no login", error.message);
     }

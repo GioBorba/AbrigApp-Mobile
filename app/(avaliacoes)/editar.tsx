@@ -1,81 +1,91 @@
+// app/avaliacoes/editar.tsx
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
-import { getIdToken } from "firebase/auth";
+import { AvaliacaoService } from "../../src/services/AvaliacaoService";
 import { auth } from "../../src/services/firebase";
 import { colors } from "../../src/constants/colors";
-import AvaliacaoCard from "../../src/components/AvaliacaoCard";
-import { useRouter } from "expo-router";
-import { AvaliacaoService } from "../../src/services/AvaliacaoService";
 
-type Avaliacao = {
-  id: string;
-  autor: string;
-  comentario: string;
-  nota: number;
-  dataCriacao: string;
-};
-
-export default function MinhasAvaliacoes() {
-  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+export default function EditarAvaliacao() {
+  const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  const carregarAvaliacoes = async () => {
-    try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("Usuário não autenticado.");
-      const token = await getIdToken(user);
+  const [comentario, setComentario] = useState("");
+  const [nota, setNota] = useState("5");
+  const [abrigoId, setAbrigoId] = useState("");
+  const [loading, setLoading] = useState(true);
 
-      const resultado = await AvaliacaoService.listarMinhas(token);
-      setAvaliacoes(resultado);
-    } catch (error: any) {
-      console.error(error);
-      Alert.alert("Erro", error.message || "Não foi possível carregar as avaliações.");
+  const carregar = async () => {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const minhas = await AvaliacaoService.listarMinhas(token!);
+      const avaliacao = minhas.find((a) => a.id === id);
+
+      if (!avaliacao) {
+        Alert.alert("Erro", "Avaliação não encontrada ou não pertence a você.");
+        router.back();
+        return;
+      }
+
+      setComentario(avaliacao.comentario);
+      setNota(avaliacao.nota.toString());
+      setAbrigoId(avaliacao.abrigoId || "");
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível carregar a avaliação.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const deletarAvaliacao = async (id: string) => {
-    Alert.alert("Excluir", "Tem certeza que deseja excluir esta avaliação?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Excluir",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            const token = await getIdToken(auth.currentUser!);
-            await AvaliacaoService.deletar(id, token);
-            carregarAvaliacoes();
-          } catch (error) {
-            Alert.alert("Erro", "Erro ao excluir a avaliação.");
-          }
-        },
-      },
-    ]);
+  const enviar = async () => {
+    const notaNumero = parseInt(nota);
+    if (!comentario || isNaN(notaNumero) || notaNumero < 1 || notaNumero > 5) {
+      Alert.alert("Erro", "Preencha todos os campos corretamente.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = await auth.currentUser?.getIdToken();
+      await AvaliacaoService.editar(String(id), { comentario, nota: notaNumero }, token!);
+      Alert.alert("Sucesso", "Avaliação atualizada!");
+      router.replace(`/(abrigos)/${abrigoId}`);
+    } catch (error) {
+      Alert.alert("Erro", "Falha ao editar a avaliação.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    carregarAvaliacoes();
-  }, []);
+    if (id) carregar();
+  }, [id]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Minhas Avaliações</Text>
+      <Text style={styles.title}>Editar Avaliação</Text>
 
-      <FlatList
-        data={avaliacoes}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <AvaliacaoCard
-            autor={item.autor}
-            comentario={item.comentario}
-            nota={item.nota}
-            data={item.dataCriacao}
-            onEdit={() => router.push(`/avaliacoes/editar?id=${item.id}`)}
-            onDelete={() => deletarAvaliacao(item.id)}
-          />
-        )}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        ListEmptyComponent={<Text style={styles.vazio}>Você ainda não avaliou nenhum abrigo.</Text>}
+      <Text style={styles.label}>Nota (1 a 5):</Text>
+      <TextInput
+        style={styles.input}
+        keyboardType="numeric"
+        value={nota}
+        onChangeText={setNota}
       />
+
+      <Text style={styles.label}>Comentário:</Text>
+      <TextInput
+        style={[styles.input, { height: 100 }]}
+        multiline
+        value={comentario}
+        onChangeText={setComentario}
+        placeholder="Atualize seu comentário..."
+        textAlignVertical="top"
+      />
+
+      <TouchableOpacity style={styles.button} onPress={enviar} disabled={loading}>
+        <Text style={styles.buttonText}>{loading ? "Salvando..." : "Salvar Alterações"}</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -87,14 +97,33 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontSize: 24,
-    color: colors.primary,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 16,
+    color: colors.primary,
+    marginBottom: 24,
   },
-  vazio: {
-    color: colors.textGray,
+  label: {
+    color: colors.textLight,
+    marginBottom: 4,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    color: colors.textLight,
+    backgroundColor: "#2a2a2a",
+  },
+  button: {
+    backgroundColor: colors.primary,
+    padding: 14,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  buttonText: {
+    color: colors.buttonText,
     textAlign: "center",
-    marginTop: 20,
+    fontWeight: "bold",
   },
 });

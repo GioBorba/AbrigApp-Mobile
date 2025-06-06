@@ -35,10 +35,10 @@ export default function Dashboard() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo,</Text>
-      <Text style={styles.email}>{user?.email}</Text>
+      <Text style={styles.title}>Bem-vindo, <Text style={styles.email}>{user?.email}</Text></Text>
+      
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/abrigos")}>
+      <TouchableOpacity style={styles.button} onPress={() => router.push("/(abrigos)/")}>
         <Text style={styles.buttonText}>Abrigos</Text>
       </TouchableOpacity>
 
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   email: {
-    fontSize: 16,
+    fontSize: 21,
     color: colors.textGray,
     marginBottom: 32,
   },

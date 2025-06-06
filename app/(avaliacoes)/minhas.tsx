@@ -1,55 +1,42 @@
+// app/avaliacoes/minhas.tsx
+import { View, Text, StyleSheet, FlatList, Alert, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
-import { getIdToken } from "firebase/auth";
+import { AvaliacaoService, Avaliacao } from "../../src/services/AvaliacaoService";
 import { auth } from "../../src/services/firebase";
-import { api } from "../../src/services/api";
 import { colors } from "../../src/constants/colors";
-import AvaliacaoCard from "../../src/components/AvaliacaoCard";
 import { useRouter } from "expo-router";
-
-type Avaliacao = {
-  id: string;
-  autor: string;
-  comentario: string;
-  nota: number;
-  dataCriacao: string;
-};
+import AvaliacaoCard from "../../src/components/AvaliacaoCard";
 
 export default function MinhasAvaliacoes() {
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const carregarAvaliacoes = async () => {
+  const carregar = async () => {
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("Usuário não autenticado.");
-      const token = await getIdToken(user);
-
-      const res = await api.get("/avaliacoes/minhas", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setAvaliacoes(res.data);
+      const token = await auth.currentUser?.getIdToken();
+      const minhas = await AvaliacaoService.listarMinhas(token!);
+      setAvaliacoes(minhas);
     } catch (error) {
-      console.error(error);
+      Alert.alert("Erro", "Não foi possível carregar suas avaliações.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const deletarAvaliacao = async (id: string) => {
-    Alert.alert("Excluir", "Tem certeza que deseja excluir esta avaliação?", [
+  const deletar = async (id: string) => {
+    Alert.alert("Confirmação", "Deseja mesmo excluir essa avaliação?", [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Excluir",
         style: "destructive",
         onPress: async () => {
           try {
-            const token = await getIdToken(auth.currentUser!);
-            await api.delete(`/avaliacoes/${id}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            carregarAvaliacoes();
+            const token = await auth.currentUser?.getIdToken();
+            await AvaliacaoService.deletar(id, token!);
+            carregar();
           } catch (error) {
-            Alert.alert("Erro", "Erro ao excluir.");
+            Alert.alert("Erro", "Falha ao excluir.");
           }
         },
       },
@@ -57,8 +44,16 @@ export default function MinhasAvaliacoes() {
   };
 
   useEffect(() => {
-    carregarAvaliacoes();
+    carregar();
   }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loading}>Carregando...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -68,17 +63,35 @@ export default function MinhasAvaliacoes() {
         data={avaliacoes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <AvaliacaoCard
-            autor={item.autor}
-            comentario={item.comentario}
-            nota={item.nota}
-            data={item.dataCriacao}
-            onEdit={() => router.push(`/avaliacoes/editar?id=${item.id}`)}
-            onDelete={() => deletarAvaliacao(item.id)}
-          />
+          <View style={styles.cardContainer}>
+            <AvaliacaoCard
+              autor={item.autor}
+              comentario={item.comentario}
+              nota={item.nota}
+              data={item.dataCriacao}
+            />
+
+            <View style={styles.acoes}>
+              <TouchableOpacity
+                style={[styles.botao, { backgroundColor: colors.secondary }]}
+                onPress={() => router.push(`/avaliacoes/editar?id=${item.id}`)}
+              >
+                <Text style={styles.botaoTexto}>Editar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.botao, { backgroundColor: "#cc3333" }]}
+                onPress={() => deletar(item.id)}
+              >
+                <Text style={styles.botaoTexto}>Excluir</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
+        ListEmptyComponent={
+          <Text style={styles.vazio}>Você ainda não fez nenhuma avaliação.</Text>
+        }
         contentContainerStyle={{ paddingBottom: 24 }}
-        ListEmptyComponent={<Text style={styles.vazio}>Você ainda não avaliou nenhum abrigo.</Text>}
       />
     </View>
   );
@@ -91,14 +104,39 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontSize: 24,
-    color: colors.primary,
+    fontSize: 22,
     fontWeight: "bold",
+    color: colors.primary,
     marginBottom: 16,
   },
-  vazio: {
-    color: colors.textGray,
+  loading: {
     textAlign: "center",
-    marginTop: 20,
+    color: colors.textLight,
+  },
+  vazio: {
+    textAlign: "center",
+    color: colors.textGray,
+    marginTop: 32,
+  },
+  cardContainer: {
+    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderColor: colors.border,
+    paddingBottom: 12,
+  },
+  acoes: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+  botao: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  botaoTexto: {
+    color: colors.buttonText,
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
