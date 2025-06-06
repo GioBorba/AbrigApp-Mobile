@@ -6,4 +6,5 @@ export const colors = {
   textGray: '#ccc',
   border: '#FF4500',
   buttonText: '#ffffff',
+  delete: '#FF0000'
 };
