@@ -1,4 +1,3 @@
-// src/components/AbrigoCard.tsx
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { colors } from "../constants/colors";
 

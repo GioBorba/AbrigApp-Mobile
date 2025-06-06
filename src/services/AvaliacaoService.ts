@@ -1,4 +1,3 @@
-// src/services/AvaliacaoService.ts
 import { api } from "./api";
 
 export type Avaliacao = {
@@ -8,7 +7,7 @@ export type Avaliacao = {
   nota: number;
   dataCriacao: string;
   usuarioId: string;
-  abrigoId?: string; // necessário para redirecionamento na edição
+  abrigoId?: string; 
 };
 
 export const AvaliacaoService = {
@@ -52,22 +51,23 @@ export const AvaliacaoService = {
     }
   },
 
-  editar: async (
-    id: string,
-    dados: { comentario: string; nota: number },
-    token: string
-  ): Promise<Avaliacao> => {
-    try {
-      const response = await api.put(`/avaliacoes/${id}`, dados, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("Avaliação editada:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao editar avaliação:", error);
-      throw error;
-    }
-  },
+editar: async (
+  id: string,
+  dados: { comentario: string; nota: number; abrigoId: string },
+  token: string
+): Promise<Avaliacao> => {
+  try {
+    const response = await api.put(`/avaliacoes/${id}`, dados, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log("Avaliação editada:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao editar avaliação", error);
+    throw error;
+  }
+},
+
 
   deletar: async (id: string, token: string): Promise<void> => {
     try {

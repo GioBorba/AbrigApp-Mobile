@@ -1,4 +1,3 @@
-// app/avaliacoes/editar.tsx
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -47,7 +46,7 @@ export default function EditarAvaliacao() {
     try {
       setLoading(true);
       const token = await auth.currentUser?.getIdToken();
-      await AvaliacaoService.editar(String(id), { comentario, nota: notaNumero }, token!);
+      await AvaliacaoService.editar(String(id), { comentario, nota: notaNumero, abrigoId }, token!);
       Alert.alert("Sucesso", "Avaliação atualizada!");
       router.replace(`/(abrigos)/${abrigoId}`);
     } catch (error) {

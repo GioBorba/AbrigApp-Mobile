@@ -1,4 +1,3 @@
-// src/services/api.ts
 import axios from "axios";
 
 export const api = axios.create({
@@ -6,7 +5,7 @@ export const api = axios.create({
   timeout: 10000,
 });
 
-// Interceptador para log de erro global (opcional)
+// Interceptador para log de erro global
 api.interceptors.response.use(
   response => response,
   error => {

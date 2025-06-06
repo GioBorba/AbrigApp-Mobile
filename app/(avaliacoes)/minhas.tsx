@@ -1,4 +1,3 @@
-// app/avaliacoes/minhas.tsx
 import { View, Text, StyleSheet, FlatList, Alert, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import { AvaliacaoService, Avaliacao } from "../../src/services/AvaliacaoService";
@@ -74,7 +73,7 @@ export default function MinhasAvaliacoes() {
             <View style={styles.acoes}>
               <TouchableOpacity
                 style={[styles.botao, { backgroundColor: colors.secondary }]}
-                onPress={() => router.push(`/avaliacoes/editar?id=${item.id}`)}
+                onPress={() => router.push(`/(avaliacoes)/editar?id=${item.id}`)}
               >
                 <Text style={styles.botaoTexto}>Editar</Text>
               </TouchableOpacity>

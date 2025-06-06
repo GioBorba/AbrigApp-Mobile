@@ -93,7 +93,7 @@ export default function DetalhesAbrigo() {
               <View style={styles.acoes}>
                 <TouchableOpacity
                   style={[styles.botao, { backgroundColor: colors.secondary }]}
-                  onPress={() => router.push(`/avaliacoes/editar?id=${item.id}`)}
+                  onPress={() => router.push(`/(avaliacoes)/editar?id=${item.id}`)}
                 >
                   <Text style={styles.botaoTexto}>Editar</Text>
                 </TouchableOpacity>
@@ -115,7 +115,7 @@ export default function DetalhesAbrigo() {
       {auth.currentUser && (
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push(`/avaliacoes/nova?abrigoId=${abrigo.id}`)}
+          onPress={() => router.push(`/(avaliacoes)/nova?abrigoId=${abrigo.id}`)}
         >
           <Text style={styles.buttonText}>Nova Avaliação</Text>
         </TouchableOpacity>

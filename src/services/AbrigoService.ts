@@ -1,4 +1,3 @@
-// src/services/AbrigoService.ts
 import { api } from "./api";
 
 export type Abrigo = {
