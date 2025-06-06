@@ -3,7 +3,6 @@ import { api } from "./api";
 export type Avaliacao = {
   email: string;
   id: string;
-  autor: string;
   comentario: string;
   nota: number;
   dataCriacao: string;

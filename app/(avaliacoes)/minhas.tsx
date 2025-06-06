@@ -5,6 +5,7 @@ import { auth } from "../../src/services/firebase";
 import { colors } from "../../src/constants/colors";
 import { useRouter } from "expo-router";
 import AvaliacaoCard from "../../src/components/AvaliacaoCard";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function MinhasAvaliacoes() {
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
@@ -42,11 +43,9 @@ export default function MinhasAvaliacoes() {
     ]);
   };
 
-  // Carregar as avaliações quando o componente for montado
   useEffect(() => {
     carregar();
   }, []);
-
 
   if (loading) {
     return (
@@ -58,7 +57,12 @@ export default function MinhasAvaliacoes() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Minhas Avaliações</Text>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.voltar}>
+          <Ionicons name="arrow-back" size={24} color={colors.primary} />
+        </TouchableOpacity>
+        <Text style={styles.title}>Minhas Avaliações</Text>
+      </View>
 
       <FlatList
         data={avaliacoes}
@@ -66,7 +70,6 @@ export default function MinhasAvaliacoes() {
         renderItem={({ item }) => (
           <View style={styles.cardContainer}>
             <AvaliacaoCard
-              autor={item.autor}
               comentario={item.comentario}
               nota={item.nota}
               data={item.dataCriacao}
@@ -90,7 +93,10 @@ export default function MinhasAvaliacoes() {
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.vazio}>Você ainda não fez nenhuma avaliação.</Text>
+          <View style={styles.vazioContainer}>
+            <Ionicons name="sad-outline" size={48} color={colors.textGray} />
+            <Text style={styles.vazio}>Você ainda não fez nenhuma avaliação.</Text>
+          </View>
         }
         contentContainerStyle={{ paddingBottom: 24 }}
       />
@@ -104,20 +110,34 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: 24,
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  voltar: {
+    marginRight: 12,
+  },
   title: {
     fontSize: 22,
     fontWeight: "bold",
     color: colors.primary,
-    marginBottom: 16,
   },
   loading: {
     textAlign: "center",
     color: colors.textLight,
+    marginTop: 32,
+    fontSize: 16,
+  },
+  vazioContainer: {
+    marginTop: 48,
+    alignItems: "center",
+    gap: 12,
   },
   vazio: {
     textAlign: "center",
     color: colors.textGray,
-    marginTop: 32,
+    fontSize: 16,
   },
   cardContainer: {
     marginBottom: 16,
@@ -129,6 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 8,
+    gap: 12,
   },
   botao: {
     paddingVertical: 8,

@@ -1,19 +1,19 @@
 import { View, Text, StyleSheet } from "react-native";
 import { colors } from "../constants/colors";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 type Props = {
-  autor: string;
   comentario: string;
   nota: number;
   data: string;
 };
 
-export default function AvaliacaoCard({ autor, comentario, nota, data }: Props) {
+export default function AvaliacaoCard({ comentario, nota, data }: Props) {
   return (
     <View style={styles.card}>
-      <Text style={styles.autor}>Por: {autor}</Text>
+      <Text style={styles.conteudo}>Comentário:</Text>
       <Text style={styles.comentario}>{comentario}</Text>
-      <Text style={styles.nota}>Nota: {nota}</Text>
+      <Text style={styles.nota}>Nota: {nota} <MaterialCommunityIcons name="star" color={colors.primary} /></Text>
       <Text style={styles.data}>{new Date(data).toLocaleDateString()}</Text>
     </View>
   );
@@ -27,9 +27,9 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
   },
-  autor: {
-    fontWeight: "bold",
+  conteudo: {
     color: colors.primary,
+    fontWeight: "bold"
   },
   comentario: {
     marginTop: 4,

@@ -1,12 +1,12 @@
-// app/(abrigos)/[id].tsx
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, Alert, TouchableOpacity, Linking } from "react-native";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AbrigoService, Abrigo } from "../../src/services/AbrigoService";
 import { AvaliacaoService, Avaliacao } from "../../src/services/AvaliacaoService";
 import AvaliacaoCard from "../../src/components/AvaliacaoCard";
 import { colors } from "../../src/constants/colors";
 import { auth } from "../../src/services/firebase";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function DetalhesAbrigo() {
   const { id } = useLocalSearchParams();
@@ -63,7 +63,12 @@ export default function DetalhesAbrigo() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{abrigo.nome}</Text>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <MaterialCommunityIcons name="arrow-left" size={28} color={colors.primary} />
+        </TouchableOpacity>
+        <Text style={styles.title}>{abrigo.nome}</Text>
+      </View>
       <Text style={styles.endereco}>
         {abrigo.endereco}, {abrigo.cidade} - {abrigo.estado}
       </Text>
@@ -83,7 +88,6 @@ export default function DetalhesAbrigo() {
         renderItem={({ item }) => (
           <View style={{ marginBottom: 12 }}>
             <AvaliacaoCard
-              autor={item.autor}
               comentario={item.comentario}
               nota={item.nota}
               data={item.dataCriacao}
@@ -130,50 +134,76 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: 24,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a2a2a',
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 8,
+  },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     color: colors.primary,
     fontWeight: "bold",
+    marginBottom: 4,
   },
   endereco: {
+    fontSize: 16,
     color: colors.textGray,
-    marginBottom: 12,
+    marginBottom: 20,
+    marginTop: 20
   },
   subtitulo: {
-    fontSize: 18,
-    color: colors.secondary,
-    fontWeight: "bold",
-    marginVertical: 12,
+    fontSize: 20,
+    fontWeight: "600",
+    color: colors.textLight,
+    marginBottom: 16,
+    marginTop: 12,
   },
   button: {
     backgroundColor: colors.primary,
-    padding: 14,
-    borderRadius: 8,
-    marginTop: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonText: {
-    color: colors.buttonText,
-    fontWeight: "bold",
-    textAlign: "center",
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  acoes: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+    marginTop: 8,
+  },
+  botao: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+  },
+  botaoTexto: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
   },
   semDados: {
     color: colors.textGray,
     textAlign: "center",
-    marginTop: 20,
-  },
-  acoes: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 8,
-  },
-  botao: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  botaoTexto: {
-    color: colors.buttonText,
-    fontWeight: "bold",
-    textAlign: "center",
+    marginTop: 16,
+    fontSize: 14,
   },
 });

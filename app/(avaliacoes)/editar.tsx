@@ -31,6 +31,7 @@ export default function EditarAvaliacao() {
       setAbrigoId(avaliacao.abrigoId || "");
     } catch (error) {
       Alert.alert("Erro", "Não foi possível carregar a avaliação.");
+      router.back();
     } finally {
       setLoading(false);
     }
@@ -60,6 +61,14 @@ export default function EditarAvaliacao() {
     if (id) carregar();
   }, [id]);
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loading}>Carregando avaliação...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Editar Avaliação</Text>
@@ -68,8 +77,11 @@ export default function EditarAvaliacao() {
       <TextInput
         style={styles.input}
         keyboardType="numeric"
+        maxLength={1}
         value={nota}
         onChangeText={setNota}
+        placeholder="Ex: 4"
+        placeholderTextColor="#777"
       />
 
       <Text style={styles.label}>Comentário:</Text>
@@ -80,10 +92,14 @@ export default function EditarAvaliacao() {
         onChangeText={setComentario}
         placeholder="Atualize seu comentário..."
         textAlignVertical="top"
+        placeholderTextColor="#777"
       />
 
-      <TouchableOpacity style={styles.button} onPress={enviar} disabled={loading}>
+      <TouchableOpacity style={[styles.button, loading && styles.buttonDisabled]} onPress={enviar} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? "Salvando..." : "Salvar Alterações"}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, styles.backButton]} onPress={() => router.back()} disabled={loading}>
+        <Text style={styles.buttonText}>Voltar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -95,6 +111,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: 24,
   },
+  backButton: {
+    backgroundColor: colors.secondary,
+    marginBottom: 8,
+  },
+  loading: {
+    color: colors.textLight,
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 48,
+  },
   title: {
     fontSize: 22,
     fontWeight: "bold",
@@ -103,14 +129,14 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.textLight,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
     padding: 12,
-    marginBottom: 16,
+    marginBottom: 18,
     color: colors.textLight,
     backgroundColor: "#2a2a2a",
   },
@@ -118,11 +144,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     padding: 14,
     borderRadius: 8,
-    marginTop: 12,
+    marginTop: 8,
+  },
+  buttonDisabled: {
+    backgroundColor: "#555",
   },
   buttonText: {
     color: colors.buttonText,
     textAlign: "center",
     fontWeight: "bold",
+    fontSize: 16,
   },
 });
