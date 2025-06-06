@@ -5,11 +5,14 @@ import { auth } from "../../src/services/firebase";
 import { colors } from "../../src/constants/colors";
 import { useRouter } from "expo-router";
 import AvaliacaoCard from "../../src/components/AvaliacaoCard";
+import { useApiStatus } from "../../src/services/useApiStatus"; 
 
 export default function MinhasAvaliacoes() {
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  const { apiOnline, checking } = useApiStatus("https://abrigapp.onrender.com/api/avaliacoes/minhas");
 
   const carregar = async () => {
     try {
@@ -43,13 +46,15 @@ export default function MinhasAvaliacoes() {
   };
 
   useEffect(() => {
-    carregar();
-  }, []);
+    if (apiOnline) carregar();
+  }, [apiOnline]);
 
-  if (loading) {
+  if (checking || loading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loading}>Carregando...</Text>
+        <Text style={styles.loading}>
+          {checking ? "Conectando à API..." : "Carregando suas avaliações..."}
+        </Text>
       </View>
     );
   }

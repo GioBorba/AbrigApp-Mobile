@@ -19,6 +19,7 @@ export default function Dashboard() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      Alert.alert("Sucesso", "Deslogado com sucesso.");
       router.replace("/login");
     } catch (error: any) {
       Alert.alert("Erro ao sair", error.message);
@@ -35,27 +36,29 @@ export default function Dashboard() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo, <Text style={styles.email}>{user?.email}</Text></Text>
-      
+      <Text style={styles.title}>Bem-vindo!</Text>
+      <Text style={styles.email}>{user?.email}</Text>
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/(abrigos)/")}>
-        <Text style={styles.buttonText}>Abrigos</Text>
-      </TouchableOpacity>
+      <View style={styles.menu}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push("/(abrigos)/")}>
+          <Text style={styles.buttonText}>🔎 Ver Abrigos</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/(avaliacoes)/minhas")}>
-        <Text style={styles.buttonText}>Minhas Avaliações</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.push("/(avaliacoes)/minhas")}>
+          <Text style={styles.buttonText}>📝 Minhas Avaliações</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/dicas")}>
-        <Text style={styles.buttonText}>O que fazer em caso de emergência</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.push("/dicas")}>
+          <Text style={styles.buttonText}>⚠️ Dicas de Emergência</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/numeros")}>
-        <Text style={styles.buttonText}>Números de emergência</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.push("/numeros")}>
+          <Text style={styles.buttonText}>📞 Números de Emergência</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Sair</Text>
+        <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );
@@ -67,23 +70,33 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: 24,
     justifyContent: "center",
+    alignItems: "center",
   },
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: "bold",
     color: colors.primary,
     marginBottom: 4,
   },
   email: {
-    fontSize: 21,
+    fontSize: 16,
     color: colors.textGray,
-    marginBottom: 32,
+    marginBottom: 24,
+  },
+  menu: {
+    width: "100%",
   },
   button: {
     backgroundColor: colors.primary,
-    padding: 14,
-    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 10,
     marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 3,
   },
   buttonText: {
     color: colors.buttonText,
@@ -92,15 +105,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   logoutButton: {
+    marginTop: 30,
+    padding: 12,
     backgroundColor: "#333",
-    padding: 14,
-    borderRadius: 8,
-    marginTop: 32,
+    borderRadius: 10,
   },
   logoutText: {
     color: "#fff",
-    textAlign: "center",
     fontWeight: "bold",
+    textAlign: "center",
   },
   loading: {
     color: colors.textLight,
