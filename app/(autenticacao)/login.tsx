@@ -21,15 +21,13 @@ export default function Login() {
       const user = auth.currentUser;
 
       if (user) {
-        const token = await getIdToken(user);
-        console.log("🔐 Token Firebase:", token);
         router.replace("/dashboard");
       } else {
         console.log("⚠️ Nenhum usuário autenticado.");
       }
 
     } catch (error: any) {
-      Alert.alert("Erro no login", error.message);
+      Alert.alert("Erro no login: ", error.message);
     }
   };
 
